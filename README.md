@@ -103,6 +103,7 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
+| 0.3.1          | 0.12.0        |
 | 0.3.0          | 0.11.0        |
 
 Earlier module versions were published at the module's two previous addresses,
