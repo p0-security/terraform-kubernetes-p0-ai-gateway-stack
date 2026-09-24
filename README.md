@@ -103,6 +103,7 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
+| 0.4.0          | 0.13.0        |
 | 0.3.1          | 0.12.0        |
 | 0.3.0          | 0.11.0        |
 
@@ -112,6 +113,12 @@ and their matrices live with them: 0.2.0–0.2.3 (chart 0.10.0–0.11.0) in
 and 0.1.x (chart 0.8.6 and earlier) in
 [terraform-kubernetes-p0-oauthed-mcp](https://github.com/p0-security/terraform-kubernetes-p0-oauthed-mcp#compatibility-matrix).
 Both are archived.
+
+## Upgrading to 0.4.0
+
+Module 0.4.0 pins chart 0.13.0, which moves Envoy Gateway to v1.9.0 and needs Kubernetes 1.33 or later. Helm never upgrades CRDs, so a deployment made with an earlier module version keeps its old Gateway API and Envoy Gateway CRDs. Apply the new ones before running `terraform apply` with 0.4.0. The commands are in the chart's [upgrade section](https://github.com/p0-security/p0-helm-oauthed-mcp#upgrading-from-chart-0120-or-earlier).
+
+A new install needs no extra step.
 
 ## Requirements
 
