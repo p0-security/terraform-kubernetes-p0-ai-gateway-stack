@@ -1,7 +1,7 @@
 locals {
   # Pinned chart version for this module release. Update in lockstep with
   # module version tags — see the compatibility matrix in README.md.
-  chart_version = "0.12.0"
+  chart_version = "0.13.0"
 }
 
 resource "helm_release" "ai_gateway_stack" {
