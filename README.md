@@ -103,6 +103,7 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
+| 0.5.0          | 0.14.0        |
 | 0.4.0          | 0.13.0        |
 | 0.3.1          | 0.12.0        |
 | 0.3.0          | 0.11.0        |
@@ -113,6 +114,10 @@ and their matrices live with them: 0.2.0–0.2.3 (chart 0.10.0–0.11.0) in
 and 0.1.x (chart 0.8.6 and earlier) in
 [terraform-kubernetes-p0-oauthed-mcp](https://github.com/p0-security/terraform-kubernetes-p0-oauthed-mcp#compatibility-matrix).
 Both are archived.
+
+## Upgrading to 0.5.0
+
+Module 0.5.0 pins chart 0.14.0, which adds a mandatory `braekhus-client` Deployment (a tunnel dialing out to P0's controller) and renames the secrets-provisioning hook Job. Both are breaking: new required `values` keys (`agentic-gateway.braekhus.orgSlug`/`gatewayId`/`tunnelHost`) must be set before upgrading, and the renamed Job leaves its previous RBAC objects orphaned — see the chart's own [changelog](https://github.com/p0-security/p0-helm-oauthed-mcp) for the exact values and cleanup command.
 
 ## Upgrading to 0.4.0
 
