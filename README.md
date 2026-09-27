@@ -149,14 +149,7 @@ A new install needs no extra step.
 300, and a release timeout at or below that hides the Job's own error behind a
 generic Helm timeout.
 
-`wait` defaults to matching the provider rather than overriding it. An earlier
-version of this module defaulted it to `false`, reasoning that a first install
-can't reach readiness before the TLS certificate issues — that turned out to
-be wrong: Helm's `wait` only polls built-in kinds (Pods, Deployments,
-StatefulSets, Services of type LoadBalancer, etc.), never a cert-manager
-`Certificate`'s own status, and nothing in this chart's Deployments/Services
-depends on the TLS secret either. Override to `false` only if you specifically
-want the apply to return without waiting on rollout.
+`wait` defaults to matching the provider rather than overriding it. Override to  `false` only if you specifically want the apply to return without waiting on rollout.
 
 ## Outputs
 
