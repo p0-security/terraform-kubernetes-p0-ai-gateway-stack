@@ -28,7 +28,7 @@ jobs:
         run: |
           chart_version=$(sed -n 's/^ *chart_version *= *"\(.*\)"/\1/p' main.tf)
           test -n "$chart_version"
-          helm show chart oci://registry-1.docker.io/p0security/agentic-gateway-stack --version "$chart_version"
+          helm show chart oci://registry-1.docker.io/p0security/ai-gateway-stack --version "$chart_version"
 
       - name: Terraform Format Check
         id: fmt
