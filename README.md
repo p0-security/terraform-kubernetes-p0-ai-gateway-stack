@@ -103,14 +103,17 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
-| 0.17.0         | 0.17.0        |
+| 1.0.0-beta     | 1.0.0-beta    |
 | 0.6.0          | 0.16.0        |
 | 0.5.0          | 0.14.0        |
 | 0.4.0          | 0.13.0        |
 | 0.3.1          | 0.12.0        |
 | 0.3.0          | 0.11.0        |
 
-From 0.17.0, the module, the stack chart, the gateway chart and the gateway images all share one version number. Module 0.17.0 follows 0.6.0 directly, and no module versions were skipped.
+From 1.0.0-beta, the module, the stack chart, the gateway chart and the gateway images all share one version number. Module 1.0.0-beta follows 0.6.0 directly, and no module versions were skipped.
+
+A version constraint such as `~> 0.6.0` does not select a prerelease. Pin
+`1.0.0-beta` exactly, which is what the P0 console's install snippet does.
 
 Earlier module versions were published at the module's two previous addresses,
 and their matrices live with them: 0.2.0–0.2.3 (chart 0.10.0–0.11.0) in
