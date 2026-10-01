@@ -23,12 +23,14 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v4
 
+      # Checks the chart that main.tf installs. The agentic-gateway-stack alias
+      # is being retired (ENG-8841), so it no longer proves the pin resolves.
       - name: Pinned chart version exists on the registry
         id: chart
         run: |
           chart_version=$(sed -n 's/^ *chart_version *= *"\(.*\)"/\1/p' main.tf)
           test -n "$chart_version"
-          helm show chart oci://registry-1.docker.io/p0security/agentic-gateway-stack --version "$chart_version"
+          helm show chart oci://registry-1.docker.io/p0security/ai-gateway-stack --version "$chart_version"
 
       - name: Terraform Format Check
         id: fmt
