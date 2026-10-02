@@ -120,3 +120,99 @@ run "rejects_timeout_at_job_deadline" {
 
   expect_failures = [var.timeout]
 }
+
+# Chart 0.18.0 renamed the gateway subchart's values key. The module rewrites
+# the old key so the console-generated shape keeps working unchanged.
+run "values_rewrites_legacy_key" {
+  command = plan
+
+  variables {
+    values = [yamlencode({
+      letsEncrypt = { env = "prod", email = "ops@example.com" }
+      agentic-gateway = {
+        gateway           = { className = "agentic-gateway" }
+        agenticAuthServer = { replicas = 2 }
+      }
+    })]
+  }
+
+  assert {
+    condition = helm_release.ai_gateway_stack.values[0] == yamlencode({
+      letsEncrypt = { env = "prod", email = "ops@example.com" }
+      ai-gateway = {
+        gateway           = { className = "agentic-gateway" }
+        agenticAuthServer = { replicas = 2 }
+      }
+    })
+    error_message = "agentic-gateway should be renamed to ai-gateway, with its contents (component keys included) unchanged"
+  }
+}
+
+run "values_new_key_verbatim" {
+  command = plan
+
+  variables {
+    values = ["# new key\nai-gateway:\n  gateway:\n    className: gw\n"]
+  }
+
+  assert {
+    condition     = helm_release.ai_gateway_stack.values[0] == "# new key\nai-gateway:\n  gateway:\n    className: gw\n"
+    error_message = "a string without the old key should pass through verbatim"
+  }
+}
+
+# Helm deep-merges separate strings, so each is handled on its own.
+run "values_both_keys_separate_strings" {
+  command = plan
+
+  variables {
+    values = [
+      "agentic-gateway:\n  gateway:\n    className: gw\n",
+      "ai-gateway:\n  braekhus:\n    orgSlug: acme\n",
+    ]
+  }
+
+  assert {
+    condition     = helm_release.ai_gateway_stack.values[0] == yamlencode({ ai-gateway = { gateway = { className = "gw" } } })
+    error_message = "the string using the old key should be rewritten"
+  }
+
+  assert {
+    condition     = helm_release.ai_gateway_stack.values[1] == "ai-gateway:\n  braekhus:\n    orgSlug: acme\n"
+    error_message = "the string using the new key should pass through verbatim"
+  }
+}
+
+# A shallow merge would drop settings, so one string with both keys fails at plan.
+run "values_both_keys_one_string_fails" {
+  command = plan
+
+  variables {
+    values = ["agentic-gateway:\n  gateway:\n    className: gw\nai-gateway:\n  braekhus:\n    orgSlug: acme\n"]
+  }
+
+  expect_failures = [helm_release.ai_gateway_stack]
+}
+
+run "values_non_map_verbatim" {
+  command = plan
+
+  variables {
+    values = [
+      "# only a comment\n",
+      "",
+      "- agentic-gateway\n",
+      "agentic-gateway",
+    ]
+  }
+
+  assert {
+    condition = helm_release.ai_gateway_stack.values == tolist([
+      "# only a comment\n",
+      "",
+      "- agentic-gateway\n",
+      "agentic-gateway",
+    ])
+    error_message = "comment-only, empty and non-map strings should pass through verbatim"
+  }
+}

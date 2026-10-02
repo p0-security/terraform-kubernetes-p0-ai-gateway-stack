@@ -13,7 +13,7 @@ provider "helm" {
 
 module "ai_gateway_stack" {
   source  = "p0-security/ai-gateway-stack/kubernetes"
-  version = "0.3.0"
+  version = "0.18.0"
 
   values = [
     file("${path.module}/values.yaml"),
@@ -22,7 +22,7 @@ module "ai_gateway_stack" {
         email = var.acme_email
         env   = "prod"
       }
-      "agentic-gateway" = {
+      "ai-gateway" = {
         gateway = {
           className = "agentic-gateway"  # must be unique per release in the cluster
         }
@@ -46,7 +46,7 @@ kubectl -n <namespace> patch secret app-secrets \
 kubectl -n <namespace> rollout restart deploy/agentic-auth-server deploy/agentic-gateway-server
 ```
 
-If your secrets already come from External Secrets or Vault, set `agentic-gateway.secretsJob.enabled: false` in `values` and create the Secret yourself. It has to exist before the release is created, so with `create_namespace = true` the namespace does not exist yet at that point — create it outside Terraform and set `create_namespace = false`, or let a separate `kubernetes_namespace` resource own it.
+If your secrets already come from External Secrets or Vault, set `ai-gateway.secretsJob.enabled: false` in `values` and create the Secret yourself. It has to exist before the release is created, so with `create_namespace = true` the namespace does not exist yet at that point — create it outside Terraform and set `create_namespace = false`, or let a separate `kubernetes_namespace` resource own it.
 
 For all post-deploy steps (DNS, verification, staging→prod), follow the [deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#deploy).
 
@@ -103,6 +103,7 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
+| 0.18.0         | 0.18.0        |
 | 0.6.0          | 0.16.0        |
 | 0.5.0          | 0.14.0        |
 | 0.4.0          | 0.13.0        |
@@ -115,6 +116,14 @@ and their matrices live with them: 0.2.0–0.2.3 (chart 0.10.0–0.11.0) in
 and 0.1.x (chart 0.8.6 and earlier) in
 [terraform-kubernetes-p0-oauthed-mcp](https://github.com/p0-security/terraform-kubernetes-p0-oauthed-mcp#compatibility-matrix).
 Both are archived.
+
+## Upgrading to 0.18.0
+
+Module 0.18.0 pins chart 0.18.0, which renames the gateway subchart's values key from `agentic-gateway` to `ai-gateway`. The module rewrites a top-level `agentic-gateway` key to `ai-gateway` in each `values` string, so existing values keep working without edits. A single string that sets both keys fails at plan, because the two cannot be merged reliably; move its `agentic-gateway` settings under `ai-gateway`. Separate strings may use different keys.
+
+The rewrite is temporary, and a later module release removes it. Move your values to `ai-gateway`, and the component keys to `authServer` and `accessProxy`, when convenient. The chart's [upgrade notes](https://github.com/p0-security/ai-gateway-stack#upgrading) describe the new keys.
+
+The first apply shows a `values` diff only for strings that used the old key, since the module re-encodes them. No manifest change is expected beyond the chart upgrade itself.
 
 ## Upgrading to 0.5.0
 
