@@ -142,18 +142,15 @@ A new install needs no extra step.
 | create\_namespace | Create the namespace if it does not exist. | `bool` | `true` |
 | values | List of YAML values strings merged left-to-right. | `list(string)` | `[]` |
 | timeout | Seconds Helm waits for an install or upgrade, hooks included. | `number` | `360` |
-| wait | Wait for every resource to be ready before marking the release deployed. | `bool` | `false` |
+| wait | Wait for every resource to be ready before marking the release deployed. | `bool` | `true` |
 
-Both defaults differ from the Helm provider's own.
+`timeout` differs from the Helm provider's own default (300); `wait` matches it.
 
 `timeout` must be greater than 300 seconds. The chart's secrets Job gives up at
 300, and a release timeout at or below that hides the Job's own error behind a
 generic Helm timeout.
 
-`wait` is off because a first install cannot reach readiness: the TLS
-certificate needs a DNS record pointing at a load balancer that does not exist
-until the apply finishes. Turn it on once DNS is in place and you want later
-applies to block on rollout.
+`wait` defaults to matching the provider rather than overriding it. Override to  `false` only if you specifically want the apply to return without waiting on rollout.
 
 ## Outputs
 

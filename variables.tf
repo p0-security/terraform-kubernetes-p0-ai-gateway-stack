@@ -35,8 +35,8 @@ variable "timeout" {
 }
 
 variable "wait" {
-  description = "Wait for every resource to be ready before marking the release deployed. Off by default: the TLS certificate cannot issue until the DNS record for the gateway host exists, so waiting on a first install times out."
+  description = "Wait for every resource to be ready before marking the release deployed. Matches the Helm provider's own default (true) — override to false only if you specifically want the apply to return without waiting on rollout."
   type        = bool
-  default     = false
+  default     = true
   nullable    = false
 }

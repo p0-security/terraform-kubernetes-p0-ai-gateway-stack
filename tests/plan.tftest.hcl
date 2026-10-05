@@ -39,8 +39,8 @@ run "defaults" {
   }
 
   assert {
-    condition     = helm_release.ai_gateway_stack.wait == false
-    error_message = "wait should default to false; the TLS certificate cannot issue before the DNS record exists"
+    condition     = helm_release.ai_gateway_stack.wait == true
+    error_message = "wait should default to true, matching the Helm provider's own default"
   }
 
   assert {
@@ -62,7 +62,7 @@ run "override_release_metadata" {
     namespace        = "platform"
     create_namespace = false
     timeout          = 900
-    wait             = true
+    wait             = false
     values           = []
   }
 
@@ -82,7 +82,7 @@ run "override_release_metadata" {
   }
 
   assert {
-    condition     = helm_release.ai_gateway_stack.timeout == 900 && helm_release.ai_gateway_stack.wait == true
+    condition     = helm_release.ai_gateway_stack.timeout == 900 && helm_release.ai_gateway_stack.wait == false
     error_message = "timeout and wait overrides not applied"
   }
 
