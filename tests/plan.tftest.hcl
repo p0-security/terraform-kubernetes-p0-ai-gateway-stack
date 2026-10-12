@@ -121,7 +121,7 @@ run "rejects_timeout_at_job_deadline" {
   expect_failures = [var.timeout]
 }
 
-# Chart 0.18.0 renamed the gateway subchart's values key. The module rewrites
+# Chart 1.1.0-beta renamed the gateway subchart's values key. The module rewrites
 # the old key so the console-generated shape keeps working unchanged.
 run "values_rewrites_legacy_key" {
   command = plan

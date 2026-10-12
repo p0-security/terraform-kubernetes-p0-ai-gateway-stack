@@ -13,7 +13,7 @@ provider "helm" {
 
 module "ai_gateway_stack" {
   source  = "p0-security/ai-gateway-stack/kubernetes"
-  version = "0.18.0"
+  version = "1.1.0-beta"
 
   values = [
     file("${path.module}/values.yaml"),
@@ -103,7 +103,7 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
-| 0.18.0         | 0.18.0        |
+| 1.1.0-beta     | 1.1.0-beta    |
 | 1.0.0-beta     | 1.0.0-beta    |
 | 0.6.0          | 0.16.0        |
 | 0.5.0          | 0.14.0        |
@@ -118,9 +118,9 @@ and 0.1.x (chart 0.8.6 and earlier) in
 [terraform-kubernetes-p0-oauthed-mcp](https://github.com/p0-security/terraform-kubernetes-p0-oauthed-mcp#compatibility-matrix).
 Both are archived.
 
-## Upgrading to 0.18.0
+## Upgrading to 1.1.0-beta
 
-Module 0.18.0 pins chart 0.18.0, which renames the gateway subchart's values key from `agentic-gateway` to `ai-gateway`. The module rewrites a top-level `agentic-gateway` key to `ai-gateway` in each `values` string, so existing values keep working without edits. A single string that sets both keys fails at plan, because the two cannot be merged reliably; move its `agentic-gateway` settings under `ai-gateway`. Separate strings may use different keys.
+Module 1.1.0-beta pins chart 1.1.0-beta, which renames the gateway subchart's values key from `agentic-gateway` to `ai-gateway`. The module rewrites a top-level `agentic-gateway` key to `ai-gateway` in each `values` string, so existing values keep working without edits. A single string that sets both keys fails at plan, because the two cannot be merged reliably; move its `agentic-gateway` settings under `ai-gateway`. Separate strings may use different keys.
 
 The rewrite is temporary, and a later module release removes it. Move your values to `ai-gateway`, and the component keys to `authServer` and `accessProxy`, when convenient. The chart's [upgrade notes](https://github.com/p0-security/ai-gateway-stack#upgrading) describe the new keys.
 
