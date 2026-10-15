@@ -1,7 +1,7 @@
 locals {
   # Pinned chart version for this module release. Update in lockstep with
   # module version tags — see the compatibility matrix in README.md.
-  chart_version = "1.1.0-beta"
+  chart_version = "1.2.0-beta"
 
   # Chart 1.1.0-beta renamed the gateway subchart's values key and Helm ignores
   # unknown keys, so callers' old key is rewritten here. Remove in a breaking release.
