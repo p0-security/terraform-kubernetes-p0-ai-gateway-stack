@@ -4,7 +4,7 @@ mock_provider "helm" {}
 # Defaults for every run: the module requires a chart version, and its
 # precondition requires Valkey storage to be configured.
 variables {
-  chart_version = "1.3.0-beta"
+  chart_version = "1.2.0-beta"
   values        = ["valkey:\n  storageClass: encrypted-gp3\n"]
 }
 
@@ -47,12 +47,12 @@ run "defaults" {
   }
 
   assert {
-    condition     = helm_release.ai_gateway_stack.version == "1.3.0-beta"
+    condition     = helm_release.ai_gateway_stack.version == "1.2.0-beta"
     error_message = "chart version should come from var.chart_version"
   }
 
   assert {
-    condition     = output.chart_version == "1.3.0-beta"
+    condition     = output.chart_version == "1.2.0-beta"
     error_message = "chart_version output should match var.chart_version"
   }
 }
@@ -89,7 +89,7 @@ run "override_release_metadata" {
   }
 
   assert {
-    condition     = helm_release.ai_gateway_stack.version == "1.3.0-beta"
+    condition     = helm_release.ai_gateway_stack.version == "1.2.0-beta"
     error_message = "chart version should remain var.chart_version even when other metadata is overridden"
   }
 }
@@ -235,11 +235,11 @@ run "chart_version_override" {
   command = plan
 
   variables {
-    chart_version = "1.2.0-beta"
+    chart_version = "1.1.0-beta"
   }
 
   assert {
-    condition     = helm_release.ai_gateway_stack.version == "1.2.0-beta" && output.chart_version == "1.2.0-beta"
+    condition     = helm_release.ai_gateway_stack.version == "1.1.0-beta" && output.chart_version == "1.1.0-beta"
     error_message = "chart_version should set the helm release version and the output"
   }
 }
