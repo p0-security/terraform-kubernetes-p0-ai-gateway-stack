@@ -24,9 +24,6 @@ module "ai_gateway_stack" {
         email = var.acme_email
         env   = "prod"
       }
-      valkey = {
-        storageClass = "<encrypted-class>"  # holds credentials; see "Valkey storage"
-      }
       "ai-gateway" = {
         gateway = {
           className = "agentic-gateway"  # must be unique per release in the cluster
@@ -37,11 +34,22 @@ module "ai_gateway_stack" {
 }
 ```
 
+`values.yaml` holds the rest of your chart values, including the StorageClasses:
+
+```yaml
+postgresql:
+  storageClass: <class>
+victorialogs:
+  storageClass: <class>
+valkey:
+  storageClass: <encrypted-class>  # holds credentials; see "Valkey storage"
+```
+
 `chart_version` is required and takes an exact chart version. See the [compatibility matrix](#compatibility-matrix) for the versions each module version supports.
 
 Values are merged left-to-right (last wins), equivalent to `helm install -f`. See the [chart's values.yaml](https://github.com/p0-security/p0-helm-oauthed-mcp/blob/main/values.yaml) for the full schema.
 
-There is no secret setup step to run before `terraform apply`. The chart creates `app-secrets` itself, from a pre-install hook. The cluster prerequisites still apply, though — a working block-storage StorageClass for the bundled PostgreSQL, VictoriaLogs, and Valkey, which on EKS means the EBS CSI driver add-on. Valkey's class must be encrypted; see [Valkey storage](#valkey-storage). Those are listed in the [chart's deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#prerequisites).
+There is no secret setup step to run before `terraform apply`. The chart creates `app-secrets` itself, from a pre-install hook. The cluster prerequisites still apply, though — a working block-storage StorageClass for the bundled PostgreSQL, VictoriaLogs, and Valkey, which on EKS means the EBS CSI driver add-on. Name the classes in your values file, and make Valkey's an encrypted one; see [Valkey storage](#valkey-storage). Those are listed in the [chart's deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#prerequisites).
 
 Afterwards, patch in the real OIDC client secret, and on an external database the real PostgreSQL password. The hook writes a placeholder for the first and never overwrites either once set. Restart both Deployments after patching — they read the Secret when a pod starts, so running pods keep the old value until they are replaced:
 
@@ -59,35 +67,24 @@ For all post-deploy steps (DNS, verification, staging→prod), follow the [deplo
 
 ## Valkey storage
 
-From chart 1.3.0-beta, the bundled Valkey keeps its data on a PersistentVolumeClaim. Set its StorageClass in `values`, the same way as `postgresql.storageClass` and `victorialogs.storageClass`:
+From chart 1.3.0-beta, the bundled Valkey keeps its data on a PersistentVolumeClaim. Set its StorageClass in your values file, next to `postgresql.storageClass` and `victorialogs.storageClass`:
 
-```hcl
-  values = [
-    yamlencode({
-      valkey = {
-        storageClass = "<encrypted-class>"
-        storageSize  = "1Gi"  # optional; the chart defaults to 1Gi
-      }
-    }),
-  ]
+```yaml
+valkey:
+  storageClass: <encrypted-class>
+  storageSize: 1Gi  # optional; the chart defaults to 1Gi
 ```
 
 **The class must be encrypted.** Valkey's volume holds credentials, including the gateway's registrations with upstream authorization servers. Reuse `postgresql.storageClass` only if that class is encrypted; EKS's stock `gp2` is not. The module cannot tell whether a class is encrypted, so this is on you to check. The chart's [block storage section](https://github.com/p0-security/ai-gateway-stack#block-storage-provisioner) describes what Valkey holds and how to encrypt its volume.
 
 **Without a StorageClass**, run Valkey outside the chart. Set `valkey.enabled: false` and point the auth server's caches at your own Valkey:
 
-```hcl
-    yamlencode({
-      valkey = { enabled = false }
-      "ai-gateway" = {
-        authServer = {
-          caches = jsonencode({
-            valkey   = { url = "redis://<your-valkey-host>:6379" }
-            defaults = [{ type = "memory" }, { type = "valkey" }]
-          })
-        }
-      }
-    }),
+```yaml
+valkey:
+  enabled: false
+ai-gateway:
+  authServer:
+    caches: '{"valkey":{"url":"redis://<your-valkey-host>:6379"},"defaults":[{"type":"memory"},{"type":"valkey"}]}'
 ```
 
 `terraform plan` fails if no `values` string sets either `valkey.storageClass` or `valkey.enabled: false`. Without the check, the chart would fail with "storageClass is required" partway through `terraform apply`. The check reads the strings the way Helm merges them, so a later string overrides an earlier one.
@@ -169,7 +166,7 @@ Both are archived.
 Module 1.3.0-beta no longer pins the chart. Two changes are needed before `terraform plan` succeeds:
 
 - **Set `chart_version`** to `"1.3.0-beta"`. The input is required and takes an exact version, not a range.
-- **Configure Valkey storage** in `values`: set `valkey.storageClass` to an encrypted class, or set `valkey.enabled: false` and point `ai-gateway.authServer.caches` at an external Valkey. See [Valkey storage](#valkey-storage).
+- **Configure Valkey storage** in your values file: set `valkey.storageClass` to an encrypted class, or set `valkey.enabled: false` and point `ai-gateway.authServer.caches` at an external Valkey. See [Valkey storage](#valkey-storage).
 
 No `kubectl` step is needed. The apply creates Valkey's claim and restarts Valkey on it. Valkey is unavailable for up to a minute and comes back empty this once, so users re-authorize upstream MCP servers once. Later restarts keep its data. The chart's [upgrade notes](https://github.com/p0-security/ai-gateway-stack#upgrading-from-chart-110-beta-or-earlier) cover rollback.
 

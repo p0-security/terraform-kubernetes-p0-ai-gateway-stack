@@ -35,8 +35,3 @@ variable "values_file" {
   description = "Path to a Helm values YAML file. See the chart's values.yaml for the full schema."
   type        = string
 }
-
-variable "valkey_storage_class" {
-  description = "Encrypted StorageClass for the bundled Valkey's volume, which holds credentials."
-  type        = string
-}
