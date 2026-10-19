@@ -25,10 +25,12 @@ jobs:
 
       # Checks the chart that main.tf installs. The agentic-gateway-stack alias
       # is being retired (ENG-8841), so it no longer proves the pin resolves.
-      - name: Pinned chart version exists on the registry
+      # Callers choose the version through var.chart_version, so this checks
+      # the version the example (and the README) tell them to use.
+      - name: Example chart version exists on the registry
         id: chart
         run: |
-          chart_version=$(sed -n 's/^ *chart_version *= *"\(.*\)"/\1/p' main.tf)
+          chart_version=$(sed -n 's/^ *chart_version *= *"\(.*\)"/\1/p' examples/basic/main.tf)
           test -n "$chart_version"
           helm show chart oci://registry-1.docker.io/p0security/ai-gateway-stack --version "$chart_version"
 

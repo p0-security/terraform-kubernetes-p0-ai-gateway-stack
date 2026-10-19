@@ -1,8 +1,4 @@
 locals {
-  # Pinned chart version for this module release. Update in lockstep with
-  # module version tags — see the compatibility matrix in README.md.
-  chart_version = "1.2.0-beta"
-
   # Chart 1.1.0-beta renamed the gateway subchart's values key and Helm ignores
   # unknown keys, so callers' old key is rewritten here. Remove in a breaking release.
   values_key        = "ai-gateway"
@@ -22,6 +18,15 @@ locals {
       { (local.values_key) = local.decoded_values[i][local.legacy_values_key] },
     )) : v
   ]
+
+  # Charts after 1.2.0-beta render Valkey's claim from valkey.storageClass and
+  # fail with "storageClass is required" without it. Resolve both keys the way
+  # Helm does (last string that sets one wins) so plan can catch it first.
+  valkey_enabled_settings       = [for d in local.decoded_values : try(d.valkey.enabled, null)]
+  valkey_storage_class_settings = [for d in local.decoded_values : try(d.valkey.storageClass, null)]
+  valkey_enabled                = try(reverse([for e in local.valkey_enabled_settings : e if e != null])[0], true)
+  valkey_storage_class          = try(reverse([for c in local.valkey_storage_class_settings : c if c != null])[0], "")
+  valkey_storage_configured     = try(local.valkey_enabled == false || trimspace(tostring(local.valkey_storage_class)) != "", false)
 }
 
 resource "helm_release" "ai_gateway_stack" {
@@ -31,7 +36,7 @@ resource "helm_release" "ai_gateway_stack" {
 
   repository = "oci://registry-1.docker.io/p0security"
   chart      = "ai-gateway-stack"
-  version    = local.chart_version
+  version    = var.chart_version
 
   timeout = var.timeout
   wait    = var.wait
@@ -44,6 +49,13 @@ resource "helm_release" "ai_gateway_stack" {
     precondition {
       condition     = !anytrue(local.has_both_keys)
       error_message = "A values string sets both \"${local.legacy_values_key}\" and \"${local.values_key}\" (values index ${join(", ", [for i, both in local.has_both_keys : tostring(i) if both])}). Move the \"${local.legacy_values_key}\" settings under \"${local.values_key}\" in that string."
+    }
+
+    # Valkey's volume holds credentials, so the class is the caller's choice
+    # and must be encrypted. The module only checks that one is set.
+    precondition {
+      condition     = local.valkey_storage_configured
+      error_message = "No values string sets valkey.storageClass. Set it to an encrypted StorageClass, or set valkey.enabled: false and point ai-gateway.authServer.caches at an external Valkey. See \"Valkey storage\" in the module README."
     }
   }
 }
