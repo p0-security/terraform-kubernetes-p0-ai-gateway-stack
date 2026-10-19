@@ -10,5 +10,5 @@ output "namespace" {
 
 output "chart_version" {
   description = "Version of the chart that was deployed."
-  value       = local.chart_version
+  value       = var.chart_version
 }

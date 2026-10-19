@@ -16,6 +16,18 @@ variable "create_namespace" {
   default     = true
 }
 
+variable "chart_version" {
+  description = "Exact version of the ai-gateway-stack chart to install, such as \"1.2.3\". See the compatibility matrix in README.md for the versions this module supports."
+  type        = string
+  nullable    = false
+
+  # Exact versions only: a range would let the chart move under an unchanged plan.
+  validation {
+    condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$", var.chart_version))
+    error_message = "chart_version must be an exact chart version, such as \"1.2.3\", not a range or an empty string."
+  }
+}
+
 variable "values" {
   description = "List of YAML values strings merged left-to-right (last wins), equivalent to helm install -f. See the chart's values.yaml for the full schema."
   type        = list(string)
