@@ -49,7 +49,7 @@ valkey:
 
 Values are merged left-to-right (last wins), equivalent to `helm install -f`. See the [chart's values.yaml](https://github.com/p0-security/p0-helm-oauthed-mcp/blob/main/values.yaml) for the full schema.
 
-There is no secret setup step to run before `terraform apply`. The chart creates `app-secrets` itself, from a pre-install hook. The cluster prerequisites still apply, though — a working block-storage StorageClass for the bundled PostgreSQL, VictoriaLogs, and Valkey, which on EKS means the EBS CSI driver add-on. Name the classes in your values file, and make Valkey's an encrypted one; see [Valkey storage](#valkey-storage). Those are listed in the [chart's deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#prerequisites).
+Cluster prerequisites apply: A working block-storage StorageClass for the bundled PostgreSQL, VictoriaLogs, and Valkey. EKS requires the EBS CSI driver add-on. Name the classes in your values file, and make Valkey's an encrypted one; see [Valkey storage](#valkey-storage). Values are listed in the [chart's deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#prerequisites).
 
 Afterwards, patch in the real OIDC client secret, and on an external database the real PostgreSQL password. The hook writes a placeholder for the first and never overwrites either once set. Restart both Deployments after patching — they read the Secret when a pod starts, so running pods keep the old value until they are replaced:
 
@@ -168,7 +168,7 @@ Module 1.3.0-beta no longer pins the chart. Two changes are needed before `terra
 - **Set `chart_version`** to `"1.3.0-beta"`. The input is required and takes an exact version, not a range.
 - **Configure Valkey storage** in your values file: set `valkey.storageClass` to an encrypted class, or set `valkey.enabled: false` and point `ai-gateway.authServer.caches` at an external Valkey. See [Valkey storage](#valkey-storage).
 
-No `kubectl` step is needed. The apply creates Valkey's claim and restarts Valkey on it. Valkey is unavailable for up to a minute and comes back empty this once, so users re-authorize upstream MCP servers once. Later restarts keep its data. The chart's [upgrade notes](https://github.com/p0-security/ai-gateway-stack#upgrading-from-chart-110-beta-or-earlier) cover rollback.
+The apply restarts Valkey. Valkey is unavailable for up to a minute and comes back empty this once. Users will need to re-authorize upstream MCP servers. Later restarts keep data. The chart's [upgrade notes](https://github.com/p0-security/ai-gateway-stack#upgrading-from-chart-110-beta-or-earlier) cover rollback.
 
 ## Upgrading to 1.1.0-beta
 

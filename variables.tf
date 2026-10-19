@@ -17,14 +17,14 @@ variable "create_namespace" {
 }
 
 variable "chart_version" {
-  description = "Exact version of the ai-gateway-stack chart to install, such as \"1.3.0-beta\". See the compatibility matrix in README.md for the versions this module supports."
+  description = "Exact version of the ai-gateway-stack chart to install, such as \"1.2.3\". See the compatibility matrix in README.md for the versions this module supports."
   type        = string
   nullable    = false
 
   # Exact versions only: a range would let the chart move under an unchanged plan.
   validation {
     condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$", var.chart_version))
-    error_message = "chart_version must be an exact chart version, such as \"1.3.0-beta\", not a range or an empty string."
+    error_message = "chart_version must be an exact chart version, such as \"1.2.3\", not a range or an empty string."
   }
 }
 

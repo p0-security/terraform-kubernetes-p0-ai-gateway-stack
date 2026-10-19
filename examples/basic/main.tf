@@ -14,10 +14,7 @@ module "ai_gateway_stack" {
   release_name     = var.release_name
   namespace        = var.namespace
   create_namespace = var.create_namespace
-  # The values file sets valkey.storageClass (an encrypted class) or
-  # valkey.enabled: false, like the other chart values. See "Valkey storage" in
-  # the module README.
-  values = [file(var.values_file)]
+  values           = [file(var.values_file)]
 }
 
 output "release_name" { value = module.ai_gateway_stack.release_name }
