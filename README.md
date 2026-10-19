@@ -13,7 +13,7 @@ provider "helm" {
 
 module "ai_gateway_stack" {
   source  = "p0-security/ai-gateway-stack/kubernetes"
-  version = "1.3.0-beta"
+  version = "1.3.0"
 
   chart_version = "1.3.0-beta"
 
@@ -140,11 +140,11 @@ rather than `oauthed-mcp`.
 
 ## Compatibility matrix
 
-From 1.3.0-beta, the module installs the chart version you pass in `chart_version`. The row shows the chart version that module version was tested with. Earlier module versions pin an exact chart version, so to use one of those chart versions, use the corresponding module version.
+From 1.3.0, the module installs the chart version you pass in `chart_version`. The row shows the chart version that module version was tested with. Earlier module versions pin an exact chart version, so to use one of those chart versions, use the corresponding module version.
 
 | Module version | Chart version |
 |----------------|---------------|
-| 1.3.0-beta     | `chart_version` (1.3.0-beta) |
+| 1.3.0          | `chart_version` (1.3.0-beta) |
 | 1.2.0-beta     | 1.2.0-beta    |
 | 1.1.0-beta     | 1.1.0-beta    |
 | 1.0.0-beta     | 1.0.0-beta    |
@@ -161,9 +161,9 @@ and 0.1.x (chart 0.8.6 and earlier) in
 [terraform-kubernetes-p0-oauthed-mcp](https://github.com/p0-security/terraform-kubernetes-p0-oauthed-mcp#compatibility-matrix).
 Both are archived.
 
-## Upgrading to 1.3.0-beta
+## Upgrading to 1.3.0
 
-Module 1.3.0-beta no longer pins the chart. Two changes are needed before `terraform plan` succeeds:
+Module 1.3.0 no longer pins the chart. Two changes are needed before `terraform plan` succeeds:
 
 - **Set `chart_version`** to `"1.3.0-beta"`. The input is required and takes an exact version, not a range.
 - **Configure Valkey storage** in your values file: set `valkey.storageClass` to an encrypted class, or set `valkey.enabled: false` and point `ai-gateway.authServer.caches` at an external Valkey. See [Valkey storage](#valkey-storage).
