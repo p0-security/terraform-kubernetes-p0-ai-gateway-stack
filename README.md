@@ -168,7 +168,7 @@ Module 1.3.0 no longer pins the chart. Two changes are needed before `terraform 
 - **Set `chart_version`** to `"1.3.0-beta"`. The input is required and takes an exact version, not a range.
 - **Configure Valkey storage** in your values file: set `valkey.storageClass` to an encrypted class, or set `valkey.enabled: false` and point `ai-gateway.authServer.caches` at an external Valkey. See [Valkey storage](#valkey-storage).
 
-The apply restarts Valkey. Valkey is unavailable for up to a minute and comes back empty this once. Users will need to re-authorize upstream MCP servers. Later restarts keep data. The chart's [upgrade notes](https://github.com/p0-security/ai-gateway-stack#upgrading-from-chart-110-beta-or-earlier) cover rollback.
+The apply restarts Valkey. Valkey is unavailable for up to a minute and comes back empty this once. Users will need to re-authorize upstream MCP servers. Later restarts keep data. The chart's [upgrade notes](https://github.com/p0-security/ai-gateway-stack#upgrading-from-chart-120-beta-or-earlier) cover rollback.
 
 ## Upgrading to 1.1.0-beta
 
