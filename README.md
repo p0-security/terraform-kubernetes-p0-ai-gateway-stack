@@ -12,7 +12,7 @@ provider "helm" {
 }
 
 module "ai_gateway_stack" {
-  source  = "p0-security/ai-gateway-stack/kubernetes"
+  source  = "p0-security/p0-ai-gateway-stack/kubernetes"
   version = "1.3.0"
 
   chart_version = "1.3.0-beta"
@@ -102,7 +102,7 @@ Repointing is a `source` and `version` change, nothing more:
 
 ```hcl
 module "ai_gateway_stack" {
-  source  = "p0-security/ai-gateway-stack/kubernetes"
+  source  = "p0-security/p0-ai-gateway-stack/kubernetes"
   version = "0.3.0"
 
   values = [...]
