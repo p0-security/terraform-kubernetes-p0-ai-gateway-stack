@@ -12,10 +12,10 @@ provider "helm" {
 }
 
 module "ai_gateway_stack" {
-  source  = "p0-security/ai-gateway-stack/kubernetes"
-  version = "1.3.0"
+  source  = "p0-security/p0-ai-gateway-stack/kubernetes"
+  version = "1.4.0-beta"
 
-  chart_version = "1.3.0-beta"
+  chart_version = "1.4.0-beta"
 
   values = [
     file("${path.module}/values.yaml"),
@@ -102,7 +102,7 @@ Repointing is a `source` and `version` change, nothing more:
 
 ```hcl
 module "ai_gateway_stack" {
-  source  = "p0-security/ai-gateway-stack/kubernetes"
+  source  = "p0-security/p0-ai-gateway-stack/kubernetes"
   version = "0.3.0"
 
   values = [...]
@@ -144,6 +144,7 @@ From 1.3.0, the module installs the chart version you pass in `chart_version`. T
 
 | Module version | Chart version |
 |----------------|---------------|
+| 1.4.0-beta     | `chart_version` (1.4.0-beta) |
 | 1.3.0          | `chart_version` (1.3.0-beta) |
 | 1.2.0-beta     | 1.2.0-beta    |
 | 1.1.0-beta     | 1.1.0-beta    |
