@@ -58,7 +58,7 @@ module "ai_gateway_stack" {
 }
 ```
 
-This is the minimal configuration. `letsEncrypt.env = "prod"` overrides the chart's default of `staging`, which issues untrusted certificates. Every other key is required.
+This is the minimal configuration. `letsEncrypt.env = "prod"` overrides the chart's default of `staging`, which issues untrusted certificates. Every other key is required. See [Chart values](https://docs.p0.dev/agentic-access/agentic-gateway/gateway/deploy/chart-values/batteries-included-chart) for what each value does.
 
 > **`local-path` is for a non-production setup only.** Its data is not durable. For a production install, choose your own StorageClasses, and an encrypted one for Valkey; see [Valkey storage](#valkey-storage).
 

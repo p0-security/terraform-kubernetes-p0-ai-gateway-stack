@@ -1,3 +1,6 @@
+# Minimal configuration. For what each value does, see
+# https://docs.p0.dev/agentic-access/agentic-gateway/gateway/deploy/chart-values/batteries-included-chart
+
 letsEncrypt:
   env: prod
   email: <your-email>
