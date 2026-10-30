@@ -32,6 +32,7 @@ variable "create_namespace" {
 }
 
 variable "values_file" {
-  description = "Path to a Helm values YAML file. See the chart's values.yaml for the full schema."
+  description = "Path to a Helm values YAML file. Defaults to the minimal configuration in values.yaml next to this example; replace its placeholders first. See the chart's values.yaml for the full schema."
   type        = string
+  default     = "values.yaml"
 }

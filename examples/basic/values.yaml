@@ -1,0 +1,27 @@
+letsEncrypt:
+  env: prod
+  email: <your-email>
+
+# local-path: for a non-production setup only. Its data is not durable.
+# For production, choose your own StorageClasses, and an encrypted one for
+# Valkey (see "Valkey storage" in the module README).
+postgresql:
+  storageClass: local-path
+victorialogs:
+  storageClass: local-path
+valkey:
+  storageClass: local-path
+
+ai-gateway:
+  gateway:
+    className: <gateway-class-name>
+    host: <gateway-hostname>
+  authServer:
+    oidcClientId: <oauth-client-id>
+    p0Url: https://api.p0.app/o/<your-org>
+  accessProxy:
+    p0Url: https://api.p0.app/o/<your-org>
+    manageAllowedEmails: <p0-service-account-email>
+  braekhus:
+    orgSlug: <your-org>
+    gatewayId: <gateway-id>

@@ -1,4 +1,4 @@
-# terraform-kubernetes-ai-gateway-stack
+# terraform-kubernetes-p0-ai-gateway-stack
 
 Terraform module that deploys [agentic-gateway](https://github.com/p0-security/agentic-gateway) via the [ai-gateway-stack](https://github.com/p0-security/p0-helm-oauthed-mcp) umbrella Helm chart. The chart bundles Envoy Gateway, cert-manager, Let's Encrypt (ACME HTTP-01), PostgreSQL, and Valkey into a single install.
 
@@ -18,15 +18,39 @@ module "ai_gateway_stack" {
   chart_version = "1.4.0-beta"
 
   values = [
-    file("${path.module}/values.yaml"),
     yamlencode({
       letsEncrypt = {
-        email = var.acme_email
         env   = "prod"
+        email = "<your-email>"
       }
+
+      # local-path: for a non-production setup only. Its data is not durable.
+      postgresql = {
+        storageClass = "local-path"
+      }
+      victorialogs = {
+        storageClass = "local-path"
+      }
+      valkey = {
+        storageClass = "local-path"
+      }
+
       "ai-gateway" = {
         gateway = {
-          className = "agentic-gateway"  # must be unique per release in the cluster
+          className = "<gateway-class-name>"
+          host      = "<gateway-hostname>"
+        }
+        authServer = {
+          oidcClientId = "<oauth-client-id>"
+          p0Url        = "https://api.p0.app/o/<your-org>"
+        }
+        accessProxy = {
+          p0Url               = "https://api.p0.app/o/<your-org>"
+          manageAllowedEmails = "<p0-service-account-email>"
+        }
+        braekhus = {
+          orgSlug   = "<your-org>"
+          gatewayId = "<gateway-id>"
         }
       }
     }),
@@ -34,22 +58,15 @@ module "ai_gateway_stack" {
 }
 ```
 
-`values.yaml` holds the rest of your chart values, including the StorageClasses:
+This is the minimal configuration. `letsEncrypt.env = "prod"` overrides the chart's default of `staging`, which issues untrusted certificates. Every other key is required.
 
-```yaml
-postgresql:
-  storageClass: <class>
-victorialogs:
-  storageClass: <class>
-valkey:
-  storageClass: <encrypted-class>  # holds credentials; see "Valkey storage"
-```
+> **`local-path` is for a non-production setup only.** Its data is not durable. For a production install, choose your own StorageClasses, and an encrypted one for Valkey; see [Valkey storage](#valkey-storage).
 
 `chart_version` is required and takes an exact chart version. See the [compatibility matrix](#compatibility-matrix) for the versions each module version supports.
 
 Values are merged left-to-right (last wins), equivalent to `helm install -f`. See the [chart's values.yaml](https://github.com/p0-security/p0-helm-oauthed-mcp/blob/main/values.yaml) for the full schema.
 
-Cluster prerequisites apply: A working block-storage StorageClass for the bundled PostgreSQL, VictoriaLogs, and Valkey. EKS requires the EBS CSI driver add-on. Name the classes in your values file, and make Valkey's an encrypted one; see [Valkey storage](#valkey-storage). Values are listed in the [chart's deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#prerequisites).
+Cluster prerequisites apply: A working block-storage StorageClass for the bundled PostgreSQL, VictoriaLogs, and Valkey. EKS requires the EBS CSI driver add-on. Name the classes in `values`, and make Valkey's an encrypted one; see [Valkey storage](#valkey-storage). Values are listed in the [chart's deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#prerequisites).
 
 Afterwards, patch in the real OIDC client secret, and on an external database the real PostgreSQL password. The hook writes a placeholder for the first and never overwrites either once set. Restart both Deployments after patching — they read the Secret when a pod starts, so running pods keep the old value until they are replaced:
 
