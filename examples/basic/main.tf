@@ -7,9 +7,9 @@ provider "helm" {
 
 module "ai_gateway_stack" {
   source  = "p0-security/p0-ai-gateway-stack/kubernetes"
-  version = "1.3.0"
+  version = "1.4.0-beta"
 
-  chart_version = "1.3.0-beta"
+  chart_version = "1.4.0-beta"
 
   release_name     = var.release_name
   namespace        = var.namespace
